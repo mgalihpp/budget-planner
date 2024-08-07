@@ -1,70 +1,101 @@
-import { Image, StyleSheet, Platform } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import {
+  StyleSheet,
+  View,
+  RefreshControl,
+  ScrollView,
+  Text,
+} from 'react-native';
+import { Colors } from '@/constants/Colors';
+import Header from '@/components/Header';
+import { Link, useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+// import serviceStorage from '@/lib/serviceStorage';
+import { useEffect, useState } from 'react';
+import { getAllCategory } from '@/lib/db';
+import { useSQLiteContext } from 'expo-sqlite';
 
 export default function HomeScreen() {
+  const db = useSQLiteContext();
+  const router = useRouter();
+
+  const [categoryList, setCategoryList] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    checkUserAuth();
+    getAllCategory(db).then((data) => {
+      setCategoryList(data);
+    });
+  }, []);
+
+  /**
+   * Used to check user Is already auth or not
+   */
+  const checkUserAuth = async () => {
+    // const result = await serviceStorage.getData('login');
+    // if (result !== 'true') {
+    //   router.replace('/login');
+    // }
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <View
+      style={{
+        marginTop: 0,
+        flex: 1,
+      }}
+    >
+      <ScrollView
+        refreshControl={
+          <RefreshControl onRefresh={() => {}} refreshing={false} />
+        }
+      >
+        <View
+          style={{
+            paddingTop: 40,
+            paddingHorizontal: 20,
+            backgroundColor: Colors.PRIMARY,
+            height: 150,
+          }}
+        >
+          <Header />
+        </View>
+        <View
+          style={{
+            padding: 20,
+            marginTop: -75,
+          }}
+        >
+          <Text>Categories</Text>
+          {categoryList.map((item) => (
+            <Link
+              key={item.id}
+              href={{
+                pathname: '/category-detail',
+                params: {
+                  categoryId: item.id,
+                },
+              }}
+              style={styles.text}
+            >
+              {item.name}
+            </Link>
+          ))}
+        </View>
+      </ScrollView>
+      <Link href={'/add-new-category'} style={styles.adBtnContainer}>
+        <Ionicons name="add-circle" size={64} color={Colors.PRIMARY} />
+      </Link>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  text: {
+    fontSize: 20,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
+  adBtnContainer: {
     position: 'absolute',
+    bottom: 16,
+    right: 16,
   },
 });
