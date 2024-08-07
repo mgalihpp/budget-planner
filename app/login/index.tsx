@@ -13,7 +13,7 @@ export default function LoginScreen() {
     //   // User was authenticated
     //   // await serviceStorage.storeData('login', 'true');
     //   console.log(token)
-    //   // router.replace('/');
+      router.replace('/');
     // }
   };
 

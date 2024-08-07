@@ -1,11 +1,18 @@
 import CourseInfo from '@/components/courseDetail/CourseInfo';
+import CourseItemList from '@/components/courseDetail/CourseItemList';
 import { Colors } from '@/constants/Colors';
 import { getCategoryDetail } from '@/lib/db';
 import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useState } from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 export default function CategoryDetail() {
   const db = useSQLiteContext();
@@ -45,7 +52,34 @@ export default function CategoryDetail() {
         </TouchableOpacity>
 
         <CourseInfo categoryData={categoryData} />
+
+        <CourseItemList
+          items={categoryData.items}
+          setUpdate={() =>
+            getCategoryDetail(parseInt(categoryId as string), db)
+          }
+        />
       </ScrollView>
+
+      <Link
+        href={{
+          pathname: '/add-new-category-item',
+          params: {
+            categoryId: categoryId,
+          },
+        }}
+        style={styles.floatingBtn}
+      >
+        <Ionicons name="add-circle" size={60} color={Colors.GREEN} />
+      </Link>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  floatingBtn: {
+    position: 'absolute',
+    bottom: 16,
+    right: 16,
+  },
+});

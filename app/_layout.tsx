@@ -12,6 +12,8 @@ import 'react-native-reanimated';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { SQLiteProvider } from 'expo-sqlite';
 import { initializeDatabase } from '@/lib/db';
+import { StatusBar } from 'expo-status-bar';
+import { Colors } from '@/constants/Colors';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -33,33 +35,35 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <SQLiteProvider databaseName="budget_planner.db" onInit={initializeDatabase}>
-        <Stack
-          screenOptions={{
-            headerShown: false,
+    <SQLiteProvider
+      databaseName="budget_planner.db"
+      onInit={initializeDatabase}
+    >
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="add-new-category"
+          options={{
+            presentation: 'modal',
+            headerShown: true,
+            headerTitle: 'Add New Category',
           }}
-        >
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="add-new-category"
-            options={{
-              presentation: 'modal',
-              headerShown: true,
-              headerTitle: 'Add New Category',
-            }}
-          />
-          <Stack.Screen
-            name="add-new-category-item"
-            options={{
-              presentation: 'modal',
-              headerShown: true,
-              headerTitle: 'Add New Item',
-            }}
-          />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-      </SQLiteProvider>
-    </ThemeProvider>
+        />
+        <Stack.Screen
+          name="add-new-category-item"
+          options={{
+            presentation: 'modal',
+            headerShown: true,
+            headerTitle: 'Add New Item',
+          }}
+        />
+        <Stack.Screen name="+not-found" />
+      </Stack>
+      <StatusBar backgroundColor={Colors.PRIMARY} />
+    </SQLiteProvider>
   );
 }

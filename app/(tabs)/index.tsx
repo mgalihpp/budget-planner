@@ -13,12 +13,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import { getAllCategory } from '@/lib/db';
 import { useSQLiteContext } from 'expo-sqlite';
+import CircularChart from '@/components/CircularChart';
+import CategoryList from '@/components/CategoryList';
 
 export default function HomeScreen() {
   const db = useSQLiteContext();
   const router = useRouter();
 
-  const [categoryList, setCategoryList] = useState<Category[]>([]);
+  const [categoryList, setCategoryList] = useState<CombinedCategoryList[]>([]);
   const [loading, setLoading] = useState(false);
   useEffect(() => {
     checkUserAuth();
@@ -54,7 +56,7 @@ export default function HomeScreen() {
             paddingTop: 40,
             paddingHorizontal: 20,
             backgroundColor: Colors.PRIMARY,
-            height: 150,
+            height: 100,
           }}
         >
           <Header />
@@ -62,24 +64,11 @@ export default function HomeScreen() {
         <View
           style={{
             padding: 20,
-            marginTop: -75,
+            marginTop: 0,
           }}
         >
-          <Text>Categories</Text>
-          {categoryList.map((item) => (
-            <Link
-              key={item.id}
-              href={{
-                pathname: '/category-detail',
-                params: {
-                  categoryId: item.id,
-                },
-              }}
-              style={styles.text}
-            >
-              {item.name}
-            </Link>
-          ))}
+          <CircularChart categoryList={categoryList} />
+          <CategoryList categoryList={categoryList} />
         </View>
       </ScrollView>
       <Link href={'/add-new-category'} style={styles.adBtnContainer}>

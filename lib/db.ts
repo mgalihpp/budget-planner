@@ -33,13 +33,33 @@ export async function initializeDatabase(db: SQLiteDatabase) {
 
 export const getAllCategory = async (
   db: SQLiteDatabase
-): Promise<Category[]> => {
+): Promise<CombinedCategoryList[]> => {
   try {
-    const results: Category[] = await db.getAllAsync(
-      `SELECT * FROM categories`
+    const categories: Category[] = await db.getAllAsync(
+      `SELECT * FROM categories ORDER BY id DESC`
     );
-    console.log('Database fetched, found :', results);
-    return results;
+
+    const categoryIds = categories.map((category: Category) => category.id);
+
+    // Fetch items for each category
+    const categoryItemsPromises: Promise<CategoryItem[]>[] = categoryIds.map(
+      (categoryId) =>
+        db.getAllAsync(`SELECT * FROM categories_items WHERE category_id = ?`, [
+          categoryId as number,
+        ])
+    );
+
+    const categoryItemsResults = await Promise.all(categoryItemsPromises);
+    // Combine categories and items
+    const categoryList: CombinedCategoryList[] = categories.map(
+      (category: Category, index: number) => ({
+        ...category,
+        items: categoryItemsResults[index],
+      })
+    );
+
+    console.log('Database fetched, found :', categoryList);
+    return categoryList;
   } catch (error) {
     console.log('Error while fetching categories : ', error);
     return [];
@@ -81,6 +101,34 @@ export const addCategory = async (
   } catch (error) {
     console.error('Error while adding category : ', error);
     ToastAndroid.show('Error while adding category', ToastAndroid.SHORT);
+    return null;
+  }
+};
+
+export const addCategoryItem = async (
+  item: Omit<CategoryItem, 'id'>,
+  db: SQLiteDatabase
+): Promise<CategoryItem | null> => {
+  try {
+    const result = await db.runAsync(
+      `INSERT INTO categories_items (name, cost, url, image, note, category_id) VALUES (?, ?, ?, ?, ?, ?)`,
+      [item.name, item.cost, item.url, item.image, item.note, item.category_id]
+    );
+
+    console.log('Database inserted');
+
+    const insertedItemId = result.lastInsertRowId;
+
+    const categoryItemResult: CategoryItem | null = await db.getFirstAsync(
+      `SELECT * FROM categories_items WHERE id = ?`,
+      [insertedItemId]
+    );
+    console.log('Database fetched, found :', categoryItemResult);
+
+    return categoryItemResult;
+  } catch (error) {
+    console.log('Error while adding category item : ', error);
+    ToastAndroid.show('Error while adding category item', ToastAndroid.SHORT);
     return null;
   }
 };

@@ -1,5 +1,5 @@
 interface Category {
-  id?: number;
+  id: number;
   name: string;
   assigned_budget: number;
   icon: string;
@@ -20,3 +20,7 @@ interface CategoryDetail {
   category: Category | null;
   items: CategoryItem[];
 }
+
+type CombinedCategoryList = Category & {
+  items: CategoryItem[];
+};

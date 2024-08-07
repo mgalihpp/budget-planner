@@ -12,7 +12,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: Colors.PRIMARY,
         headerShown: false,
       }}
     >
@@ -20,11 +20,8 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon
-              name={focused ? 'home' : 'home-outline'}
-              color={color}
-            />
+          tabBarIcon: ({ color }) => (
+            <FontAwesome name={'home'} size={28} color={color} />
           ),
         }}
       />
@@ -32,11 +29,8 @@ export default function TabLayout() {
         name="explore"
         options={{
           title: 'Explore',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon
-              name={focused ? 'code-slash' : 'code-slash-outline'}
-              color={color}
-            />
+          tabBarIcon: ({ color }) => (
+            <FontAwesome name={'history'} size={28} color={color} />
           ),
         }}
       />
